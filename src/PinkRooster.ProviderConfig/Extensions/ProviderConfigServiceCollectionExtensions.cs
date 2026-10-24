@@ -18,7 +18,21 @@ public static class ProviderConfigServiceCollectionExtensions
         {
             services.AddOptions<ProviderConfigOptions>();
             services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureOptions<ProviderConfigOptions>, ConfigurationBinding>());
-            return new ProviderConfigBuilder(services);
+            ProviderTypeRegistry types = ExistingProviderTypes(services) ?? AddProviderTypes(services);
+            services.TryAddSingleton<ProviderClientFactory>();
+            services.TryAddSingleton<IProviderClientFactory>(provider => provider.GetRequiredService<ProviderClientFactory>());
+            services.TryAddSingleton<IChatClientFactory>(provider => provider.GetRequiredService<ProviderClientFactory>());
+            return new ProviderConfigBuilder(services, types);
         }
+    }
+
+    private static ProviderTypeRegistry? ExistingProviderTypes(IServiceCollection services) =>
+        services.LastOrDefault(service => service.ServiceType == typeof(ProviderTypeRegistry) && !service.IsKeyedService)?.ImplementationInstance as ProviderTypeRegistry;
+
+    private static ProviderTypeRegistry AddProviderTypes(IServiceCollection services)
+    {
+        ProviderTypeRegistry providerTypes = new();
+        services.AddSingleton(providerTypes);
+        return providerTypes;
     }
 }
