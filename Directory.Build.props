@@ -15,7 +15,7 @@
 
     <!-- One version for every package in the repository; release.yml checks the tag against it. -->
     <PropertyGroup>
-        <Version>0.1.0-preview.1</Version>
+        <Version>0.1.0-preview.2</Version>
         <Authors>PinkRooster</Authors>
         <Copyright>Copyright (c) 2026 Jan Versteeg</Copyright>
         <PackageReleaseNotes>See https://github.com/pinkroosterai/PinkRooster.ProviderConfig/blob/main/CHANGELOG.md</PackageReleaseNotes>

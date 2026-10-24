@@ -21,7 +21,7 @@ Declare AI providers in configuration, then ask for a ready client by provider I
 
 Chat providers give you an `IChatClient` (`Microsoft.Extensions.AI`). Jev System One providers give you a Jev.Net `ITypeSafeClient` with the model already set. Each app pulls in only the SDKs it uses.
 
-The packages are published on NuGet as previews (`0.1.0-preview.1`). Reference only the packages you need.
+The packages are published on NuGet as previews (`0.1.0-preview.2`). Reference only the packages you need.
 
 ## Packages
 

@@ -1,10 +1,10 @@
-<img src="https://raw.githubusercontent.com/pinkroosterai/PinkRooster/a3815ce62a2491a8ee1c7401e1e48aa43ef20a85/assets/logo.png" alt="PinkRooster logo" width="120" />
+![PinkRooster logo](https://raw.githubusercontent.com/pinkroosterai/PinkRooster/5b6d303a7ab57cf6374b210eaf0e36ca9c2ef403/assets/logo-120.png)
 
 # PinkRooster.ProviderConfig.Jev
 
 The jev provider type for PinkRooster.ProviderConfig: the Jev System One API of TypeSafe, through Jev.Net.
 
-Status: preview (`0.1.0-preview.1`), developed against the .NET 10 SDK.
+Status: preview (`0.1.0-preview.2`), developed against the .NET 10 SDK.
 
 ```text
 dotnet add package PinkRooster.ProviderConfig.Jev --prerelease

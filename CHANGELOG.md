@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.0-preview.2] - 2026-10-24
+
+### Fixed
+
+- Replaced raw HTML `<img>` tag in packed package readmes with standard Markdown image syntax (`![PinkRooster logo](...)`) referencing a crisp 120px logo hosted on GitHub, ensuring proper rendering on NuGet.org where raw HTML tags are sanitized.
+
 ## [0.1.0-preview.1] - 2026-10-24
 
 Initial release, extracted from the provider layer of PinkRooster.PeckOrder.
