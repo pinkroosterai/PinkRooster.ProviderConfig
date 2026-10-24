@@ -1,8 +1,10 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/PinkRooster.ProviderConfig/PinkRooster.ProviderConfig.csproj" />
+    <Project Path="src/PinkRooster.ProviderConfig.OpenAI/PinkRooster.ProviderConfig.OpenAI.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PinkRooster.ProviderConfig.Tests/PinkRooster.ProviderConfig.Tests.csproj" />
+    <Project Path="tests/PinkRooster.ProviderConfig.OpenAI.Tests/PinkRooster.ProviderConfig.OpenAI.Tests.csproj" />
   </Folder>
 </Solution>
