@@ -1,13 +1,23 @@
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using PinkRooster.ProviderConfig.Tests.TestSupport;
 
 namespace PinkRooster.ProviderConfig.Tests.Options;
 
 public sealed class ProviderOptionsBindingTests
 {
+    // These tests are about binding; the types they name are registered so the startup validation accepts them.
     private static ProviderConfigOptions Resolve(IServiceCollection services)
     {
+        ProviderConfigBuilder builder = services.AddProviderConfig();
+        foreach (string type in new[] { "t", "a", "b" })
+        {
+            builder.AddProviderType<IChatClient>(type, _ => id => new FakeChatClient(type, id));
+        }
+
+        builder.AddProviderType<IChatClient>("openai_responses", _ => id => new FakeChatClient("openai_responses", id), new ProviderTypeOptions { UsesStore = true });
         using ServiceProvider provider = services.BuildServiceProvider();
         return provider.GetRequiredService<IOptions<ProviderConfigOptions>>().Value;
     }
@@ -56,7 +66,7 @@ public sealed class ProviderOptionsBindingTests
     public void Providers_LaterSourceOverridesTheKey()
     {
         var options = Bind(
-            new Dictionary<string, string?> { ["Providers:GPT:ApiKey"] = "json" },
+            new Dictionary<string, string?> { ["Providers:GPT:Type"] = "t", ["Providers:GPT:ApiKey"] = "json" },
             new Dictionary<string, string?> { ["Providers:gpt:ApiKey"] = "env" });
 
         Assert.Single(options.Providers);

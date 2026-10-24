@@ -16,8 +16,9 @@ public static class ProviderConfigServiceCollectionExtensions
         /// <returns>A builder to configure provider support further.</returns>
         public ProviderConfigBuilder AddProviderConfig()
         {
-            services.AddOptions<ProviderConfigOptions>();
+            services.AddOptions<ProviderConfigOptions>().ValidateOnStart();
             services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureOptions<ProviderConfigOptions>, ConfigurationBinding>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IValidateOptions<ProviderConfigOptions>, ProvidersValidator>());
             ProviderTypeRegistry types = ExistingProviderTypes(services) ?? AddProviderTypes(services);
             services.TryAddSingleton<ProviderClientFactory>();
             services.TryAddSingleton<IProviderClientFactory>(provider => provider.GetRequiredService<ProviderClientFactory>());
