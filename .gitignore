@@ -24,3 +24,10 @@ worktrees/
 
 # Local tooling
 .superpowers/
+docs/*
+!docs/PinkRooster.*.md
+CLAUDE.md
+AGENTS.md
+.claude/
+tasks/
+.internal.git/

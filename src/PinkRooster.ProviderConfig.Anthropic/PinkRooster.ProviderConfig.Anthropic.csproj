@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>PinkRooster.ProviderConfig.Anthropic</PackageId>
     <Description>The anthropic provider type for PinkRooster.ProviderConfig: the Messages API of Anthropic or a compatible service.</Description>
-    <PackageTags>llm chat-client provider configuration anthropic claude microsoft-extensions-ai dotnet</PackageTags>
+    <PackageTags>llm chat-client provider configuration anthropic claude microsoft-extensions-ai dotnet pinkrooster</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

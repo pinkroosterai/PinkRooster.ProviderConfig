@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>PinkRooster.ProviderConfig</PackageId>
     <Description>Configuration-driven provider setup for Microsoft.Extensions.AI chat clients: a provider type registry, a chat client factory and configuration validation.</Description>
-    <PackageTags>llm chat-client provider configuration microsoft-extensions-ai dotnet</PackageTags>
+    <PackageTags>llm chat-client provider configuration microsoft-extensions-ai dotnet pinkrooster</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

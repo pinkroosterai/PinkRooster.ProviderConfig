@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>PinkRooster.ProviderConfig.OpenAI</PackageId>
     <Description>The openai and openai_responses provider types for PinkRooster.ProviderConfig: the Chat Completions and Responses APIs of OpenAI or a compatible service.</Description>
-    <PackageTags>llm chat-client provider configuration openai microsoft-extensions-ai dotnet</PackageTags>
+    <PackageTags>llm chat-client provider configuration openai microsoft-extensions-ai dotnet pinkrooster</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

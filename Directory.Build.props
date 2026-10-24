@@ -4,17 +4,20 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <LangVersion>latest</LangVersion>
+        <LangVersion>14</LangVersion>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <!-- Holds the style rules of .editorconfig in the build, so a break fails it like any other warning. -->
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <Company>PinkRooster</Company>
+        <PackageIcon>icon.png</PackageIcon>
+        <AnalysisLevel>latest</AnalysisLevel>
     </PropertyGroup>
 
     <!-- One version for every package in the repository; release.yml checks the tag against it. -->
     <PropertyGroup>
         <Version>0.1.0-preview.1</Version>
-        <Authors>Jan Versteeg</Authors>
-        <Copyright>Copyright (c) Jan Versteeg 2026</Copyright>
+        <Authors>PinkRooster</Authors>
+        <Copyright>Copyright (c) 2026 Jan Versteeg</Copyright>
         <PackageReleaseNotes>See https://github.com/pinkroosterai/PinkRooster.ProviderConfig/blob/main/CHANGELOG.md</PackageReleaseNotes>
         <PackageProjectUrl>https://github.com/pinkroosterai/PinkRooster.ProviderConfig</PackageProjectUrl>
         <RepositoryUrl>https://github.com/pinkroosterai/PinkRooster.ProviderConfig</RepositoryUrl>
@@ -29,12 +32,15 @@
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsPackable)' != 'false'">
-        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/" Visible="false"/>
+        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
         <!-- CI-only: local checkouts may have no git remote, which makes SourceLink warn. -->
-        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" Condition="'$(GITHUB_ACTIONS)' == 'true'"/>
+        
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)assets\icon.png" Pack="true" PackagePath="/" Visible="false" />
+    </ItemGroup>
 </Project>

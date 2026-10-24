@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>PinkRooster.ProviderConfig.Jev</PackageId>
     <Description>The jev provider type for PinkRooster.ProviderConfig: the Jev System One API of TypeSafe, through Jev.Net.</Description>
-    <PackageTags>jev typesafe system-one provider configuration dotnet</PackageTags>
+    <PackageTags>jev typesafe system-one provider configuration dotnet pinkrooster</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
