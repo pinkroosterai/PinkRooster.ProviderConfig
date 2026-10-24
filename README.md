@@ -1,4 +1,18 @@
+<div align="center">
+
+<img src="assets/logo.png" alt="PinkRooster logo" width="160" />
+
 # PinkRooster.ProviderConfig
+
+**Configuration-driven provider setup for Microsoft.Extensions.AI chat clients: a provider type registry, a chat client factory and configuration validation.**
+
+[![CI](https://github.com/pinkroosterai/PinkRooster.ProviderConfig/actions/workflows/ci.yml/badge.svg)](https://github.com/pinkroosterai/PinkRooster.ProviderConfig/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
+
+</div>
+
+---
 
 Declare AI providers in configuration, then ask for a ready client by provider ID and model.
 
@@ -44,6 +58,7 @@ Providers are read once at startup. They are not reloaded while the app runs.
 
 ## Registration
 
+<!-- quickstart:start -->
 ```csharp
 using PinkRooster.ProviderConfig;
 using PinkRooster.ProviderConfig.Anthropic;
@@ -58,6 +73,7 @@ services.AddProviderConfig()                       // binds "Providers", registe
     .AddChatClient("openai", "gpt-5", serviceKey: "frontier")   // keyed IChatClient
     .AddSystemOneClient("jev", "jev-1.14");        // ITypeSafeClient (PinkRooster.ProviderConfig.Jev)
 ```
+<!-- quickstart:end -->
 
 `AddProviderConfig()`, `AddOpenAI()`, `AddAnthropic()` and `AddJev()` are safe to call more than once, from the app and from other libraries, in any order. All calls share one registry and one validator. `AddChatClient` and `AddSystemOneClient` add a registration per call, so the last unkeyed one wins. The provider IDs you pass to them are checked when the service is first resolved, not at startup. Registering a different creator under a type name that is already taken throws.
 
