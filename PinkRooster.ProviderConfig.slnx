@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PinkRooster.ProviderConfig/PinkRooster.ProviderConfig.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PinkRooster.ProviderConfig.Tests/PinkRooster.ProviderConfig.Tests.csproj" />
+  </Folder>
+</Solution>
