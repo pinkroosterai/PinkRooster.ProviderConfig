@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>PinkRooster.ProviderConfig.Jev</PackageId>
+    <Description>The jev provider type for PinkRooster.ProviderConfig: the Jev System One API of TypeSafe, through Jev.Net.</Description>
+    <PackageTags>jev typesafe system-one provider configuration dotnet</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Jev.Net" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PinkRooster.ProviderConfig\PinkRooster.ProviderConfig.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PinkRooster.ProviderConfig.Jev.Tests" />
+  </ItemGroup>
+
+</Project>

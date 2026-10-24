@@ -3,10 +3,12 @@
     <Project Path="src/PinkRooster.ProviderConfig/PinkRooster.ProviderConfig.csproj" />
     <Project Path="src/PinkRooster.ProviderConfig.OpenAI/PinkRooster.ProviderConfig.OpenAI.csproj" />
     <Project Path="src/PinkRooster.ProviderConfig.Anthropic/PinkRooster.ProviderConfig.Anthropic.csproj" />
+    <Project Path="src/PinkRooster.ProviderConfig.Jev/PinkRooster.ProviderConfig.Jev.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PinkRooster.ProviderConfig.Tests/PinkRooster.ProviderConfig.Tests.csproj" />
     <Project Path="tests/PinkRooster.ProviderConfig.OpenAI.Tests/PinkRooster.ProviderConfig.OpenAI.Tests.csproj" />
     <Project Path="tests/PinkRooster.ProviderConfig.Anthropic.Tests/PinkRooster.ProviderConfig.Anthropic.Tests.csproj" />
+    <Project Path="tests/PinkRooster.ProviderConfig.Jev.Tests/PinkRooster.ProviderConfig.Jev.Tests.csproj" />
   </Folder>
 </Solution>
