@@ -28,7 +28,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all"/>
+        <!-- CI-only: local checkouts may have no git remote, which makes SourceLink warn. -->
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" Condition="'$(GITHUB_ACTIONS)' == 'true'"/>
     </ItemGroup>
 
 </Project>
