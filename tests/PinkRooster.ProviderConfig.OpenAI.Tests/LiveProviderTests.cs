@@ -36,11 +36,11 @@ public sealed class LiveProviderTests
 
     private static (string Key, string Model) Require(string provider)
     {
-        string? key = Environment.GetEnvironmentVariable($"PECKORDER_LIVE_{provider}_KEY");
-        string? model = Environment.GetEnvironmentVariable($"PECKORDER_LIVE_{provider}_MODEL");
+        string? key = Environment.GetEnvironmentVariable($"PROVIDERCONFIG_LIVE_{provider}_KEY");
+        string? model = Environment.GetEnvironmentVariable($"PROVIDERCONFIG_LIVE_{provider}_MODEL");
         if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(model))
         {
-            Assert.Skip($"Set PECKORDER_LIVE_{provider}_KEY and PECKORDER_LIVE_{provider}_MODEL to run this test.");
+            Assert.Skip($"Set PROVIDERCONFIG_LIVE_{provider}_KEY and PROVIDERCONFIG_LIVE_{provider}_MODEL to run this test.");
         }
 
         return (key, model);
