@@ -53,8 +53,24 @@ public sealed class AmbientEnvironmentTests
         await provider.GetRequiredService<ISystemOneClientFactory>().GetSystemOneClient("up", "jev-1.14")
             .SystemOneAsync("state", new Dictionary<string, Question> { ["q"] = new Noul("Is it?") });
 
-        Assert.Equal("up", stub.Requests[0].Uri.Host);
+        Assert.Equal(new Uri("http://up/prefix/v1/systemone"), stub.Requests[0].Uri);
         Assert.Equal("Bearer k1", stub.Requests[0].Headers["Authorization"]);
         Assert.Equal("jev-1.14", (string?)stub.Requests[0].Body!["model"]);
+    });
+
+    [Fact]
+    public Task Jev_WithoutAnEndpoint_IgnoresAmbientBaseUrl() => WithAmbient(async () =>
+    {
+        StubUpstream stub = new StubUpstream().RespondJson(JevResponses.Noul());
+        ServiceCollection services = new();
+        services.AddProviderConfig().AddJev().Configure(o => o.Providers["up"] = new ProviderOptions { Type = "jev", ApiKey = "k1" });
+        services.AddSingleton(new ProviderHttpHandler(stub));
+        using ServiceProvider provider = services.BuildServiceProvider();
+
+        await provider.GetRequiredService<ISystemOneClientFactory>().GetSystemOneClient("up", "jev-1.14")
+            .SystemOneAsync("state", new Dictionary<string, Question> { ["q"] = new Noul("Is it?") });
+
+        Assert.Equal(new Uri("https://api.typesafe.ai/v1/systemone"), stub.Requests[0].Uri);
+        Assert.Equal("Bearer k1", stub.Requests[0].Headers["Authorization"]);
     });
 }

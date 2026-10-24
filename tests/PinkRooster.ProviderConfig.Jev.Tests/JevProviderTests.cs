@@ -161,11 +161,24 @@ public sealed class JevProviderTests
     [Fact]
     public async Task Jev_Timeout_IsPassedToTheSdk()
     {
-        // The SDK retries a timed-out attempt, so every attempt hangs.
-        _stub.Hang().Hang().Hang().Hang();
+        _stub.Hang();
         using ServiceProvider provider = Build(timeout: TimeSpan.FromMilliseconds(200));
 
-        await Assert.ThrowsAsync<TypeSafeApiTimeoutException>(() => Client(provider).SystemOneAsync(State, Questions));
+        // Model is null, so the wrapper copies the options: this also proves Retry is kept (no retry, one hanging response).
+        await Assert.ThrowsAsync<TypeSafeApiTimeoutException>(() =>
+            Client(provider).SystemOneAsync(State, Questions, new SystemOneOptions { Retry = RetryPolicy.None }));
+    }
+
+    [Fact]
+    public async Task Jev_KeepsTheCallersPerCallTimeout()
+    {
+        _stub.Hang();
+        using ServiceProvider provider = Build();
+        // A safety net: if the per-call timeout were lost, the call would hang, so cancel it and fail instead.
+        using CancellationTokenSource safety = new(TimeSpan.FromSeconds(10));
+
+        await Assert.ThrowsAsync<TypeSafeApiTimeoutException>(() =>
+            Client(provider).SystemOneAsync(State, Questions, new SystemOneOptions { Timeout = TimeSpan.FromMilliseconds(200), Retry = RetryPolicy.None }, safety.Token));
     }
 
     [Fact]
@@ -176,7 +189,10 @@ public sealed class JevProviderTests
         ITypeSafeClient client = Client(provider);
         provider.Dispose();
 
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.SystemOneAsync(State, Questions));
+        // The SDK client itself, not just its HttpClient, must be disposed.
+        ObjectDisposedException e = await Assert.ThrowsAsync<ObjectDisposedException>(() => client.SystemOneAsync(State, Questions));
+
+        Assert.Equal(typeof(TypeSafeClient).FullName, e.ObjectName);
     }
 
     [Fact]
