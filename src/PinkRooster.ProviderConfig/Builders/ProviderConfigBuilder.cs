@@ -28,7 +28,9 @@ public sealed class ProviderConfigBuilder
 
     /// <summary>
     /// Registers a provider type: a name that <c>Providers:{id}:Type</c> can refer to, and the function that creates the client for one
-    /// configured provider. Registering the same name again with the same client kind and the same creator does nothing; any other
+    /// configured provider. The outer function runs once per configured provider, the first time a client is asked for; the function it
+    /// returns makes the client for a model. If the outer function throws, that provider keeps failing until the app restarts.
+    /// Registering the same name again with the same client kind and the same creator does nothing; any other
     /// registration under a taken name throws.
     /// </summary>
     /// <typeparam name="TClient">The client kind the type creates.</typeparam>

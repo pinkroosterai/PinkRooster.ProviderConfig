@@ -13,6 +13,6 @@ public interface IChatClientFactory
     /// <param name="modelId">The default model for the client.</param>
     /// <returns>The chat client.</returns>
     /// <exception cref="ArgumentException">An argument is empty or blank.</exception>
-    /// <exception cref="InvalidOperationException">No provider is configured under the ID.</exception>
+    /// <exception cref="InvalidOperationException">No provider is configured under the ID, or its type does not create chat clients.</exception>
     IChatClient GetChatClient(string providerId, string modelId);
 }

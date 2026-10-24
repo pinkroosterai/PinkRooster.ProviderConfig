@@ -1,7 +1,9 @@
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Jev.Net;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PinkRooster.ProviderConfig.Tests.TestSupport;
 
 namespace PinkRooster.ProviderConfig.Jev.Tests;
@@ -207,16 +209,45 @@ public sealed class JevProviderTests
     }
 
     [Fact]
-    public void AddSystemOneClient_RegistersUnkeyedAndKeyed_PinnedClients()
+    public async Task AddSystemOneClient_RegistersUnkeyedAndKeyed_PinnedClients()
     {
+        _stub.RespondJson(JevResponses.Noul()).RespondJson(JevResponses.Noul());
         ServiceCollection services = new();
         services.AddProviderConfig().AddJev()
             .Configure(o => o.Providers["jev"] = new ProviderOptions { Type = "jev", ApiKey = "k1" })
             .AddSystemOneClient("jev", "jev-1.14")
             .AddSystemOneClient("jev", "jev-other", "other");
+        services.AddSingleton(new ProviderHttpHandler(_stub));
         using ServiceProvider provider = services.BuildServiceProvider();
 
         Assert.IsType<ModelPinnedTypeSafeClient>(provider.GetRequiredService<ITypeSafeClient>());
         Assert.IsType<ModelPinnedTypeSafeClient>(provider.GetRequiredKeyedService<ITypeSafeClient>("other"));
+
+        await provider.GetRequiredService<ITypeSafeClient>().SystemOneAsync(State, Questions);
+        await provider.GetRequiredKeyedService<ITypeSafeClient>("other").SystemOneAsync(State, Questions);
+
+        Assert.Equal("jev-1.14", (string?)_stub.Requests[0].Body!["model"]);
+        Assert.Equal("jev-other", (string?)_stub.Requests[1].Body!["model"]);
+    }
+
+    [Fact]
+    public async Task Jev_ApiKey_NeverAppearsInLogs()
+    {
+        const string Sentinel = "sentinel-key-123";
+        _stub.RespondJson(JevResponses.Noul()).RespondStatus(HttpStatusCode.Unauthorized, """{"error":"unauthorized"}""");
+        CapturingLoggerProvider logs = new();
+        ServiceCollection services = new();
+        services.AddLogging(logging => logging.SetMinimumLevel(LogLevel.Trace).AddProvider(logs));
+        services.AddProviderConfig().AddJev().Configure(o => o.Providers["jev"] = new ProviderOptions { Type = "jev", ApiKey = Sentinel });
+        services.AddSingleton(new ProviderHttpHandler(_stub));
+        using ServiceProvider provider = services.BuildServiceProvider();
+        ITypeSafeClient client = Client(provider);
+
+        await client.SystemOneAsync(State, Questions);
+        await Assert.ThrowsAnyAsync<Exception>(() => client.SystemOneAsync(State, Questions, new SystemOneOptions { Retry = RetryPolicy.None }));
+
+        Assert.Equal(2, _stub.Requests.Count);
+        Assert.NotEmpty(logs.Entries);
+        Assert.DoesNotContain(logs.Entries, entry => entry.Message.Contains(Sentinel, StringComparison.Ordinal));
     }
 }

@@ -10,7 +10,7 @@ The packages are in preview and not on NuGet yet. Until then, reference the proj
 
 | Package | Adds | Pulls in |
 |---|---|---|
-| `PinkRooster.ProviderConfig` | `AddProviderConfig()`, `IChatClientFactory`, `ProviderOptions`, the type registry, startup validation, `ProviderHttpHandler` | `Microsoft.Extensions.AI.Abstractions`, Options, DependencyInjection.Abstractions, Logging.Abstractions |
+| `PinkRooster.ProviderConfig` | `AddProviderConfig()`, `IChatClientFactory`, `ProviderOptions`, the type registry, startup validation, `ProviderHttpHandler` | `Microsoft.Extensions.AI.Abstractions`, Options, Options.ConfigurationExtensions, DependencyInjection.Abstractions, Logging.Abstractions |
 | `PinkRooster.ProviderConfig.OpenAI` | types `openai` and `openai_responses`, `AddOpenAI()` | the core, `Microsoft.Extensions.AI.OpenAI` |
 | `PinkRooster.ProviderConfig.Anthropic` | type `anthropic`, `AddAnthropic()` | the core, `Anthropic` |
 | `PinkRooster.ProviderConfig.Jev` | type `jev`, `AddJev()`, `AddSystemOneClient(...)`, `ISystemOneClientFactory` | the core, `Jev.Net` |
@@ -59,11 +59,13 @@ services.AddProviderConfig()                       // binds "Providers", registe
     .AddSystemOneClient("jev", "jev-1.14");        // ITypeSafeClient (PinkRooster.ProviderConfig.Jev)
 ```
 
-`AddProviderConfig()` and the `Add*` calls are safe to call more than once, from the app and from other libraries, in any order. All calls share one registry and one validator. Registering a different creator under a type name that is already taken throws.
+`AddProviderConfig()`, `AddOpenAI()`, `AddAnthropic()` and `AddJev()` are safe to call more than once, from the app and from other libraries, in any order. All calls share one registry and one validator. `AddChatClient` and `AddSystemOneClient` add a registration per call, so the last unkeyed one wins. The provider IDs you pass to them are checked when the service is first resolved, not at startup. Registering a different creator under a type name that is already taken throws.
 
 To get a client without registering it, inject the factory:
 
 ```csharp
+using Jev.Net;
+
 IChatClient chat = chatClientFactory.GetChatClient("openai", "gpt-5-mini");
 ITypeSafeClient jev = systemOneClientFactory.GetSystemOneClient("jev", "jev-1.14");
 ```
@@ -80,7 +82,8 @@ ITypeSafeClient jev = systemOneClientFactory.GetSystemOneClient("jev", "jev-1.14
 | `jev` | `.Jev` | `ITypeSafeClient` | `ApiKey` | `Endpoint`, `Timeout` |
 
 - `openai` and `openai_responses` with an `Endpoint` and no `ApiKey` send the placeholder key `providerconfig-no-key`. That suits local servers such as Ollama.
-- `openai_responses` sends `store: false` unless you set `Store: true`. `Store` on any other type is a validation error. It also turns a failure that the upstream reports inside a successful response into an exception.
+- `openai_responses` sends `store: false` unless you set `Store: true`. `Store` on any other type is a validation error.
+- `openai_responses` also turns a failure that the upstream reports inside a successful response into an exception.
 - `Timeout` must be greater than zero. For `openai` and `openai_responses` it bounds the wait for the response headers and each gap between streamed chunks, not the whole stream. For `anthropic` it is the SDK request timeout; a whole (not streamed) request defaults to 30 seconds, so set it for long answers.
 - `jev` pins the model: a call that passes no `SystemOneOptions`, or leaves `Model` null, gets the model ID from `AddSystemOneClient` or `GetSystemOneClient`. A model the caller sets wins, and the caller's other options are kept. `Endpoint` defaults to `https://api.typesafe.ai`.
 
@@ -105,13 +108,13 @@ Use the standard configuration providers if you want environment variables, for 
 
 ## Plain-HTTP warning
 
-A provider with an `ApiKey` and an `http://` `Endpoint` sends its key unencrypted, because the SDKs do not upgrade to HTTPS. When that happens, and the host is not loopback, this warning is logged once per provider:
+A provider with an `ApiKey` and an `http://` `Endpoint` sends its key unencrypted, because the SDKs do not upgrade to HTTPS. When that happens, and the host is not loopback, this warning is logged once, on the first validation, for the providers configured then:
 
 ```text
 Upstream provider '{ProviderId}' sends its API key over plain HTTP to {Host}. Use https unless the network is trusted.
 ```
 
-It is logged when the provider settings are first validated: at startup in a hosted app, or on first use without a host. It uses the container's `ILoggerFactory` and is silent if there is none. Repeated options reads do not log it again. It applies to every type.
+The first validation happens at startup in a hosted app, or on first use without a host. It uses the container's `ILoggerFactory` and is silent if there is none. Repeated options reads do not log it again, and providers added later are not warned about. It applies to every type.
 
 ## Custom provider types
 
@@ -126,7 +129,7 @@ services.AddProviderConfig()
     });
 ```
 
-`context.RegisterDisposable(...)` hands an object to the factory, which disposes it once with the container. Pass a `ProviderTypeOptions` to add validation rules for the type. Use a static method group for the creator, not a lambda, if the registration may run twice: a repeat registration is a no-op only when the creators are equal.
+`context.RegisterDisposable(...)` hands an object to the factory, which disposes it once with the container. Pass a `ProviderTypeOptions` to add validation rules for the type. The creator runs once per provider, the first time a client is asked for; if it throws, that provider keeps failing until the app restarts. To get a client of a custom kind, call `IProviderClientFactory.GetClient<TClient>(providerId, modelId)`. Use a static method group for the creator, not a lambda, if the registration may run twice: a repeat registration is a no-op only when the creators are equal.
 
 ## Testing
 
