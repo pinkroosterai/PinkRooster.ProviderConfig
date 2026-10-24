@@ -1,0 +1,33 @@
+# .NET build outputs
+**/bin/
+**/obj/
+artifacts/
+TestResults/
+*.nupkg
+*.snupkg
+
+# IDE and user-specific files
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Local environment files
+.env*
+!.env.example
+
+# Git worktrees
+.worktrees/
+worktrees/
+
+# Local tooling
+.superpowers/
+docs/*
+!docs/PinkRooster.*.md
+CLAUDE.md
+AGENTS.md
+.claude/
+tasks/
+.internal.git/

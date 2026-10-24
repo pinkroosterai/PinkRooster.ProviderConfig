@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>PinkRooster.ProviderConfig.Anthropic</PackageId>
+    <Description>The anthropic provider type for PinkRooster.ProviderConfig: the Messages API of Anthropic or a compatible service.</Description>
+    <PackageTags>llm chat-client provider configuration anthropic claude microsoft-extensions-ai dotnet pinkrooster</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\docs\PinkRooster.ProviderConfig.Anthropic.md" Pack="true" PackagePath="/README.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Anthropic" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PinkRooster.ProviderConfig\PinkRooster.ProviderConfig.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PinkRooster.ProviderConfig.Anthropic.Tests" />
+  </ItemGroup>
+
+</Project>
