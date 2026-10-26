@@ -1,3 +1,4 @@
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -82,6 +83,66 @@ internal sealed class ProvidersValidator(ProviderTypeRegistry providerTypes, ISe
                 string noun = storeTypes.Length == 1 ? "type" : "types";
                 failures.Add($"{prefix}:Store applies only to {noun} {string.Join(", ", storeTypes.Select(storeType => $"'{storeType}'"))}.");
             }
+        }
+
+        foreach ((string modelId, ModelOptions? model) in provider.Models)
+        {
+            ValidateModel(prefix, modelId, model, failures);
+        }
+    }
+
+    private static void ValidateModel(string prefix, string modelId, ModelOptions? model, List<string> failures)
+    {
+        if (string.IsNullOrWhiteSpace(modelId))
+        {
+            failures.Add($"{prefix}:Model ID cannot be empty.");
+            return;
+        }
+
+        if (!modelId.All(character => char.IsAsciiLetterOrDigit(character) || character is '_' or '-' or '.'))
+        {
+            failures.Add($"{prefix}:Model ID '{modelId}' may only contain letters, digits, '_', '-' and '.'.");
+        }
+
+        if (model is null)
+        {
+            return;
+        }
+
+        string modelPrefix = $"{prefix}:Models:{modelId}";
+        if (model.Temperature is { } temp && temp is < 0.0f or > 2.0f)
+        {
+            failures.Add($"{modelPrefix}:Temperature must be between 0.0 and 2.0.");
+        }
+
+        if (model.TopP is { } topP && topP is < 0.0f or > 1.0f)
+        {
+            failures.Add($"{modelPrefix}:TopP must be between 0.0 and 1.0.");
+        }
+
+        if (model.FrequencyPenalty is { } freq && freq is < -2.0f or > 2.0f)
+        {
+            failures.Add($"{modelPrefix}:FrequencyPenalty must be between -2.0 and 2.0.");
+        }
+
+        if (model.PresencePenalty is { } pres && pres is < -2.0f or > 2.0f)
+        {
+            failures.Add($"{modelPrefix}:PresencePenalty must be between -2.0 and 2.0.");
+        }
+
+        if (model.MaxOutputTokens is { } maxTokens && maxTokens <= 0)
+        {
+            failures.Add($"{modelPrefix}:MaxOutputTokens must be greater than zero.");
+        }
+
+        if (model.TopK is { } topK && topK <= 0)
+        {
+            failures.Add($"{modelPrefix}:TopK must be greater than zero.");
+        }
+
+        if (model.ReasoningEffort is { } effort && !Enum.IsDefined(typeof(ReasoningEffort), effort))
+        {
+            failures.Add($"{modelPrefix}:ReasoningEffort value {(int)effort} is invalid.");
         }
     }
 
