@@ -13,7 +13,17 @@ internal sealed class ProviderClientFactory(IOptions<ProviderConfigOptions> opti
 
     private readonly ConcurrentDictionary<string, Lazy<Delegate>> _providers = new(StringComparer.OrdinalIgnoreCase);
 
-    public IChatClient GetChatClient(string providerId, string modelId) => GetClient<IChatClient>(providerId, modelId);
+    public IChatClient GetChatClient(string providerId, string modelId)
+    {
+        IChatClient client = GetClient<IChatClient>(providerId, modelId);
+        if (options.Value.Providers.TryGetValue(providerId, out ProviderOptions? providerOptions)
+            && providerOptions.Models.Count > 0)
+        {
+            return new DefaultOptionsChatClient(client, modelId, (IReadOnlyDictionary<string, ModelOptions>)providerOptions.Models);
+        }
+
+        return client;
+    }
 
     public TClient GetClient<TClient>(string providerId, string modelId) where TClient : class
     {
