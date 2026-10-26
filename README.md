@@ -21,7 +21,7 @@ Declare AI providers in configuration, then ask for a ready client by provider I
 
 Chat providers give you an `IChatClient` (`Microsoft.Extensions.AI`). Jev System One providers give you a Jev.Net `ITypeSafeClient` with the model already set. Each app pulls in only the SDKs it uses.
 
-The packages are published on NuGet as previews (`0.1.0-preview.2`). Reference only the packages you need.
+The packages are published on NuGet as previews (`0.1.0-preview.3`). Reference only the packages you need.
 
 ## Packages
 
@@ -58,6 +58,32 @@ services.AddProviderConfig().Configure(options =>
 ```
 
 Providers are read once at startup. They are not reloaded while the app runs.
+
+### Per-model chat defaults
+
+Configure generation defaults under `Providers:<id>:Models:<modelId>`:
+
+```json
+{
+  "Providers": {
+    "chat": {
+      "Type": "openai",
+      "ApiKey": "sk-...",
+      "Models": {
+        "gpt-5-mini": {
+          "Temperature": 0.7,
+          "MaxOutputTokens": 4096,
+          "AdditionalProperties": { "custom_budget_tokens": 2048 }
+        }
+      }
+    }
+  }
+}
+```
+
+Clients obtained through `IChatClientFactory` or `AddChatClient` apply these defaults to both normal and streaming calls. Model IDs are matched ignoring case. Each call uses `ChatOptions.ModelId` when supplied, otherwise the factory's model ID; unlisted models receive no defaults. Non-chat clients are unaffected.
+
+Caller values take precedence, including zero temperature and an empty `StopSequences` list. Options are cloned before merging, and additional properties are merged by key. Supported settings and configuration value conversion are described in the [core package documentation](docs/PinkRooster.ProviderConfig.md#model-defaults-configuration).
 
 ## Registration
 
@@ -116,6 +142,8 @@ Providers are validated at startup (`ValidateOnStart`). Messages start with `Pro
 - `Timeout` is greater than zero.
 - `Store` is set only on `openai_responses`.
 - Each type's own rules from the table above (required `ApiKey`).
+- Configured model IDs contain only ASCII letters, digits, `_`, `-`, or `.` and are not empty.
+- Model generation settings satisfy the ranges in the [core package documentation](docs/PinkRooster.ProviderConfig.md#model-defaults-configuration), including rejecting `NaN` and infinities.
 
 The API key never appears in a message, a log or a validation error.
 

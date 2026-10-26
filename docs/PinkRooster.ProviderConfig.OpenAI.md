@@ -4,7 +4,7 @@
 
 The openai and openai_responses provider types for PinkRooster.ProviderConfig: the Chat Completions and Responses APIs of OpenAI or a compatible service.
 
-Status: preview (`0.1.0-preview.2`), developed against the .NET 10 SDK.
+Status: preview (`0.1.0-preview.3`), developed against the .NET 10 SDK.
 
 ```text
 dotnet add package PinkRooster.ProviderConfig.OpenAI --prerelease

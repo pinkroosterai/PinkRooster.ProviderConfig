@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.0-preview.3] - 2026-10-26
+
+### Added
+
+- Per-model chat generation defaults under `Providers:<id>:Models:<modelId>`, applied to normal and streaming calls through `IChatClientFactory` and `AddChatClient`.
+- Case-insensitive model lookup, per-call model switching, caller override precedence, and key-level merging of additional properties without mutating caller options.
+- Startup validation for model IDs, generation parameter ranges, and reasoning effort values.
+
+### Fixed
+
+- Preserve explicit empty caller stop sequences instead of replacing them with configured defaults.
+- Reject `NaN` and infinities in floating-point model settings.
+- Convert configured additional-property booleans and numbers to CLR primitives; document conversion rules and literal string overrides.
+
 ## [0.1.0-preview.2] - 2026-10-24
 
 ### Fixed
