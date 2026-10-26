@@ -50,6 +50,10 @@ Default generation parameters can be declared per model under `Providers:<id>:Mo
 
 When an `IChatClient` is resolved via `IChatClientFactory` or `AddChatClient`, it automatically uses these configured defaults. Any option supplied by the caller at invocation time overrides the configured default.
 
+An explicit empty `StopSequences` list disables configured stop sequences. Only a null list receives defaults. Floating-point generation settings must be finite and within their documented ranges.
+
+Configuration stores scalar values as strings. For model `AdditionalProperties`, boolean values are converted to `bool`, integers to `long`, and other finite numbers to `double`, using invariant culture. Other values remain strings, and null values remain null. This conversion also applies to quoted numeric or boolean strings. To pass a literal string such as `"2048"` or `"true"`, set that property through the builder's `Configure` callback, which runs after configuration binding.
+
 ## Compatibility
 
 .NET 10. Depends on `Microsoft.Extensions.AI.Abstractions`.

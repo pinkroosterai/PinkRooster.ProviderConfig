@@ -56,7 +56,7 @@ internal sealed class DefaultOptionsChatClient(IChatClient inner, string default
             }
         }
 
-        if (modelDefaults.StopSequences is { Count: > 0 } && (result.StopSequences is null || result.StopSequences.Count == 0))
+        if (modelDefaults.StopSequences is { Count: > 0 } && result.StopSequences is null)
         {
             result.StopSequences = [.. modelDefaults.StopSequences];
         }

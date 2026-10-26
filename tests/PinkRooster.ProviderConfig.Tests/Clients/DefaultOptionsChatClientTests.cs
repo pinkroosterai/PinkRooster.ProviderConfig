@@ -272,7 +272,7 @@ public sealed class DefaultOptionsChatClientTests
     }
 
     [Fact]
-    public async Task GetResponseAsync_CallerStopSequences_Empty_ReplacedByDefault()
+    public async Task GetResponseAsync_CallerStopSequences_Empty_PreservedOverDefault()
     {
         var models = new Dictionary<string, ModelOptions>(StringComparer.OrdinalIgnoreCase)
         {
@@ -285,7 +285,7 @@ public sealed class DefaultOptionsChatClientTests
         await client.GetResponseAsync([new ChatMessage(ChatRole.User, "hi")], callerOptions);
 
         Assert.NotNull(inner.LastOptions?.StopSequences);
-        Assert.Equal(["default_stop"], inner.LastOptions.StopSequences);
+        Assert.Empty(inner.LastOptions.StopSequences);
     }
 
     [Fact]

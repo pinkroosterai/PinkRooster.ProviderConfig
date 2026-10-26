@@ -9,6 +9,40 @@ namespace PinkRooster.ProviderConfig.Tests.Options;
 public sealed class ModelOptionsTests
 {
     [Fact]
+    public async Task Models_JsonAdditionalProperties_ReachClientAsPrimitives()
+    {
+        const string json = """
+            { "Providers": { "p": { "Type": "fake", "Models": { "m": {
+              "AdditionalProperties": { "budget": 2048, "strict": true, "disabled": false,
+                "ratio": 0.25, "tier": "gold", "empty": "", "nothing": null }
+            } } } } }
+            """;
+        using MemoryStream stream = new(System.Text.Encoding.UTF8.GetBytes(json));
+        IConfiguration configuration = new ConfigurationBuilder().AddJsonStream(stream).Build();
+        RecordingChatClient inner = new();
+        ServiceCollection services = new();
+        services.AddSingleton(configuration);
+        services.AddProviderConfig()
+            .AddProviderType<IChatClient>("fake", _ => _ => inner)
+            .Configure(options => options.Providers["p"].Models["m"].AdditionalProperties["literal"] = "2048");
+        using ServiceProvider provider = services.BuildServiceProvider();
+        IChatClient client = provider.GetRequiredService<IChatClientFactory>().GetChatClient("p", "m");
+
+        await client.GetResponseAsync([new ChatMessage(ChatRole.User, "hello")]);
+
+        Assert.NotNull(inner.LastOptions?.AdditionalProperties);
+        AdditionalPropertiesDictionary properties = inner.LastOptions.AdditionalProperties;
+        Assert.Equal(2048L, Assert.IsType<long>(properties["budget"]));
+        Assert.True(Assert.IsType<bool>(properties["strict"]));
+        Assert.False(Assert.IsType<bool>(properties["disabled"]));
+        Assert.Equal(0.25, Assert.IsType<double>(properties["ratio"]));
+        Assert.Equal("gold", properties["tier"]);
+        Assert.Equal("", properties["empty"]);
+        Assert.Null(properties["nothing"]);
+        Assert.Equal("2048", Assert.IsType<string>(properties["literal"]));
+    }
+
+    [Fact]
     public void Models_BindsFromConfiguration_KeyedByModelId()
     {
         var config = new ConfigurationBuilder()

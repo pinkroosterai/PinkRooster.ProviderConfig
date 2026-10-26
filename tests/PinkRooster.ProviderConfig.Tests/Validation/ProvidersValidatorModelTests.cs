@@ -41,6 +41,31 @@ public sealed class ProvidersValidatorModelTests
     };
 
     [Theory]
+    [InlineData(float.NaN)]
+    [InlineData(float.PositiveInfinity)]
+    [InlineData(float.NegativeInfinity)]
+    public void ModelValidation_RejectsNonFiniteValues(float value)
+    {
+        string[] failures = Failures(options =>
+        {
+            ProviderOptions provider = new() { Type = "fake" };
+            provider.Models["m"] = new ModelOptions
+            {
+                Temperature = value,
+                TopP = value,
+                FrequencyPenalty = value,
+                PresencePenalty = value
+            };
+            options.Providers["p"] = provider;
+        });
+
+        foreach (string property in new[] { "Temperature", "TopP", "FrequencyPenalty", "PresencePenalty" })
+        {
+            Assert.Contains(failures, failure => failure.StartsWith($"Providers:p:Models:m:{property}", StringComparison.Ordinal));
+        }
+    }
+
+    [Theory]
     [MemberData(nameof(InvalidModelOptions))]
     public void ModelValidation_ReportsExpectedFailure(string modelId, ModelOptions model, string expected)
     {

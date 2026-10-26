@@ -110,22 +110,22 @@ internal sealed class ProvidersValidator(ProviderTypeRegistry providerTypes, ISe
         }
 
         string modelPrefix = $"{prefix}:Models:{modelId}";
-        if (model.Temperature is { } temp && temp is < 0.0f or > 2.0f)
+        if (model.Temperature is { } temp && (!float.IsFinite(temp) || temp is < 0.0f or > 2.0f))
         {
             failures.Add($"{modelPrefix}:Temperature must be between 0.0 and 2.0.");
         }
 
-        if (model.TopP is { } topP && topP is < 0.0f or > 1.0f)
+        if (model.TopP is { } topP && (!float.IsFinite(topP) || topP is < 0.0f or > 1.0f))
         {
             failures.Add($"{modelPrefix}:TopP must be between 0.0 and 1.0.");
         }
 
-        if (model.FrequencyPenalty is { } freq && freq is < -2.0f or > 2.0f)
+        if (model.FrequencyPenalty is { } freq && (!float.IsFinite(freq) || freq is < -2.0f or > 2.0f))
         {
             failures.Add($"{modelPrefix}:FrequencyPenalty must be between -2.0 and 2.0.");
         }
 
-        if (model.PresencePenalty is { } pres && pres is < -2.0f or > 2.0f)
+        if (model.PresencePenalty is { } pres && (!float.IsFinite(pres) || pres is < -2.0f or > 2.0f))
         {
             failures.Add($"{modelPrefix}:PresencePenalty must be between -2.0 and 2.0.");
         }
