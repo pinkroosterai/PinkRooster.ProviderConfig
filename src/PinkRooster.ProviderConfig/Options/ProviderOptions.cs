@@ -21,4 +21,7 @@ public sealed class ProviderOptions
 
     /// <summary>Whether the upstream stores responses. Applies to <c>openai_responses</c> only; defaults to false.</summary>
     public bool? Store { get; set; }
+
+    /// <summary>Model-specific execution defaults configured under <c>Providers:&lt;id&gt;:Models:&lt;modelId&gt;</c>.</summary>
+    public IDictionary<string, ModelOptions> Models { get; } = new Dictionary<string, ModelOptions>(StringComparer.OrdinalIgnoreCase);
 }
