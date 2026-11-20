@@ -37,6 +37,8 @@ public sealed class ProvidersValidatorModelTests
         { "m", new ModelOptions { MaxOutputTokens = -5 }, "Providers:p:Models:m:MaxOutputTokens must be greater than zero." },
         { "m", new ModelOptions { TopK = 0 }, "Providers:p:Models:m:TopK must be greater than zero." },
         { "m", new ModelOptions { TopK = -10 }, "Providers:p:Models:m:TopK must be greater than zero." },
+        { "m", new ModelOptions { Dimensions = 0 }, "Providers:p:Models:m:Dimensions must be greater than zero." },
+        { "m", new ModelOptions { Dimensions = -512 }, "Providers:p:Models:m:Dimensions must be greater than zero." },
         { "m", new ModelOptions { ReasoningEffort = (ReasoningEffort)999 }, "Providers:p:Models:m:ReasoningEffort value 999 is invalid." },
     };
 
@@ -93,6 +95,7 @@ public sealed class ProvidersValidatorModelTests
                 PresencePenalty = 0.0f,
                 MaxOutputTokens = 1000,
                 TopK = 50,
+                Dimensions = 1536,
                 ReasoningEffort = ReasoningEffort.Medium,
             };
             opts.Providers["p"] = provider;

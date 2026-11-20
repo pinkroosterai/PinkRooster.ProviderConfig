@@ -2,9 +2,9 @@
 
 # PinkRooster.ProviderConfig.OpenAI
 
-The openai and openai_responses provider types for PinkRooster.ProviderConfig: the Chat Completions and Responses APIs of OpenAI or a compatible service.
+The `openai`, `openai_responses`, `openai_embedding`, and `openai_embeddings` provider types for PinkRooster.ProviderConfig: the Chat Completions, Responses, and Embeddings APIs of OpenAI or a compatible service.
 
-Status: preview (`0.1.0-preview.3`), developed against the .NET 10 SDK.
+Status: preview (`0.1.0-preview.4`), developed against the .NET 10 SDK.
 
 ```text
 dotnet add package PinkRooster.ProviderConfig.OpenAI --prerelease
@@ -18,7 +18,8 @@ using PinkRooster.ProviderConfig.OpenAI;
 
 services.AddProviderConfig()
     .AddOpenAI()
-    .AddChatClient("openai", "gpt-5-mini");
+    .AddChatClient("openai", "gpt-5-mini")
+    .AddEmbeddingGenerator("openai_embedding", "text-embedding-3-small");
 ```
 
 ## Compatibility

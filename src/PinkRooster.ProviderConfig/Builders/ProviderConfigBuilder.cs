@@ -72,4 +72,30 @@ public sealed class ProviderConfigBuilder
 
         return this;
     }
+
+    /// <summary>
+    /// Registers a singleton <see cref="IEmbeddingGenerator{TInput, TEmbedding}"/> (<c>IEmbeddingGenerator&lt;string, Embedding&lt;float&gt;&gt;</c>)
+    /// for a model of a configured provider. It is created through <see cref="IEmbeddingGeneratorFactory"/> the first time it is resolved. Each call
+    /// adds a registration; it does not replace earlier ones.
+    /// </summary>
+    /// <param name="providerId">The provider ID under <c>Providers</c>.</param>
+    /// <param name="modelId">The default model for the generator.</param>
+    /// <param name="serviceKey">When set, the generator is registered as a keyed service under this key; otherwise it is unkeyed.</param>
+    /// <returns>This builder.</returns>
+    /// <exception cref="ArgumentException">An argument is empty or blank.</exception>
+    public ProviderConfigBuilder AddEmbeddingGenerator(string providerId, string modelId, object? serviceKey = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(providerId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(modelId);
+        if (serviceKey is null)
+        {
+            Services.AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(sp => sp.GetRequiredService<IEmbeddingGeneratorFactory>().GetEmbeddingGenerator(providerId, modelId));
+        }
+        else
+        {
+            Services.AddKeyedSingleton<IEmbeddingGenerator<string, Embedding<float>>>(serviceKey, (sp, _) => sp.GetRequiredService<IEmbeddingGeneratorFactory>().GetEmbeddingGenerator(providerId, modelId));
+        }
+
+        return this;
+    }
 }

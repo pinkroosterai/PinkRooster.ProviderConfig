@@ -19,16 +19,16 @@
 
 Declare AI providers in configuration, then ask for a ready client by provider ID and model.
 
-Chat providers give you an `IChatClient` (`Microsoft.Extensions.AI`). Jev System One providers give you a Jev.Net `ITypeSafeClient` with the model already set. Each app pulls in only the SDKs it uses.
+Chat providers give you an `IChatClient` (`Microsoft.Extensions.AI`), embedding providers give you an `IEmbeddingGenerator<string, Embedding<float>>` (`Microsoft.Extensions.AI`), and Jev System One providers give you a Jev.Net `ITypeSafeClient` with the model already set. Each app pulls in only the SDKs it uses.
 
-The packages are published on NuGet as previews (`0.1.0-preview.3`). Reference only the packages you need.
+The packages are published on NuGet as previews (`0.1.0-preview.4`). Reference only the packages you need.
 
 ## Packages
 
 | Package | Adds | Pulls in |
 |---|---|---|
-| `PinkRooster.ProviderConfig` | `AddProviderConfig()`, `IChatClientFactory`, `ProviderOptions`, the type registry, startup validation, `ProviderHttpHandler` | `Microsoft.Extensions.AI.Abstractions`, Options, Options.ConfigurationExtensions, DependencyInjection.Abstractions, Logging.Abstractions |
-| `PinkRooster.ProviderConfig.OpenAI` | types `openai` and `openai_responses`, `AddOpenAI()` | the core, `Microsoft.Extensions.AI.OpenAI` |
+| `PinkRooster.ProviderConfig` | `AddProviderConfig()`, `IChatClientFactory`, `IEmbeddingGeneratorFactory`, `ProviderOptions`, the type registry, startup validation, `ProviderHttpHandler` | `Microsoft.Extensions.AI.Abstractions`, Options, Options.ConfigurationExtensions, DependencyInjection.Abstractions, Logging.Abstractions |
+| `PinkRooster.ProviderConfig.OpenAI` | types `openai`, `openai_responses`, `openai_embedding`, and `openai_embeddings`, `AddOpenAI()` | the core, `Microsoft.Extensions.AI.OpenAI` |
 | `PinkRooster.ProviderConfig.Anthropic` | type `anthropic`, `AddAnthropic()` | the core, `Anthropic` |
 | `PinkRooster.ProviderConfig.Jev` | type `jev`, `AddJev()`, `AddSystemOneClient(...)`, `ISystemOneClientFactory` | the core, `Jev.Net` |
 
@@ -100,6 +100,7 @@ services.AddProviderConfig()                       // binds "Providers", registe
     .AddJev()                                      // jev
     .AddChatClient("openai", "gpt-5-mini")         // unkeyed IChatClient
     .AddChatClient("openai", "gpt-5", serviceKey: "frontier")   // keyed IChatClient
+    .AddEmbeddingGenerator("openai_embedding", "text-embedding-3-small") // unkeyed IEmbeddingGenerator
     .AddSystemOneClient("jev", "jev-1.14");        // ITypeSafeClient (PinkRooster.ProviderConfig.Jev)
 ```
 <!-- quickstart:end -->
@@ -112,6 +113,7 @@ To get a client without registering it, inject the factory:
 using Jev.Net;
 
 IChatClient chat = chatClientFactory.GetChatClient("openai", "gpt-5-mini");
+IEmbeddingGenerator<string, Embedding<float>> embeddings = embeddingGeneratorFactory.GetEmbeddingGenerator("openai_embedding", "text-embedding-3-small");
 ITypeSafeClient jev = systemOneClientFactory.GetSystemOneClient("jev", "jev-1.14");
 ```
 
@@ -123,6 +125,8 @@ ITypeSafeClient jev = systemOneClientFactory.GetSystemOneClient("jev", "jev-1.14
 |---|---|---|---|---|
 | `openai` | `.OpenAI` | `IChatClient` (Chat Completions) | `ApiKey`, unless `Endpoint` is set | `Endpoint`, `Timeout` |
 | `openai_responses` | `.OpenAI` | `IChatClient` (Responses) | `ApiKey`, unless `Endpoint` is set | `Endpoint`, `Timeout`, `Store` |
+| `openai_embedding` | `.OpenAI` | `IEmbeddingGenerator<string, Embedding<float>>` | `ApiKey`, unless `Endpoint` is set | `Endpoint`, `Timeout` |
+| `openai_embeddings` | `.OpenAI` | `IEmbeddingGenerator<string, Embedding<float>>` | `ApiKey`, unless `Endpoint` is set | `Endpoint`, `Timeout` |
 | `anthropic` | `.Anthropic` | `IChatClient` | `ApiKey` | `Endpoint`, `Timeout` |
 | `jev` | `.Jev` | `ITypeSafeClient` | `ApiKey` | `Endpoint`, `Timeout` |
 

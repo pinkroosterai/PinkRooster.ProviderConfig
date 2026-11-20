@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.0-preview.4] - 2026-11-20
+
+### Added
+
+- Support for text embedding providers (`IEmbeddingGenerator<string, Embedding<float>>`): `IEmbeddingGeneratorFactory`, `AddEmbeddingGenerator` builder extensions, and `openai_embedding` / `openai_embeddings` provider types in `PinkRooster.ProviderConfig.OpenAI`.
+- Per-model embedding dimensions configuration via `Providers:<id>:Models:<modelId>:Dimensions`, validated at startup and forwarded to the embedding client.
+
+### Changed
+
+- Injected `ILoggerFactory?` directly into `ProvidersValidator` constructor instead of `IServiceProvider`.
+
 ## [0.1.0-preview.3] - 2026-10-26
 
 ### Added

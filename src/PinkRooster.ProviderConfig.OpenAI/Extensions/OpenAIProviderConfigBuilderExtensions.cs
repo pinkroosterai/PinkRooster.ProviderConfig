@@ -8,8 +8,8 @@ public static class OpenAIProviderConfigBuilderExtensions
     extension(ProviderConfigBuilder builder)
     {
         /// <summary>
-        /// Registers the <c>openai</c> (Chat Completions) and <c>openai_responses</c> (Responses, honours <c>Store</c>) provider types.
-        /// Safe to call more than once.
+        /// Registers the <c>openai</c> (Chat Completions), <c>openai_responses</c> (Responses, honours <c>Store</c>), <c>openai_embedding</c>,
+        /// and <c>openai_embeddings</c> provider types. Safe to call more than once.
         /// </summary>
         /// <returns>The builder.</returns>
         public ProviderConfigBuilder AddOpenAI()
@@ -23,6 +23,14 @@ public static class OpenAIProviderConfigBuilderExtensions
             {
                 Validate = options => RequireKey("openai_responses", options),
                 UsesStore = true,
+            });
+            builder.AddProviderType<IEmbeddingGenerator<string, Embedding<float>>>("openai_embedding", OpenAIProviderType.CreateEmbeddings, new ProviderTypeOptions
+            {
+                Validate = options => RequireKey("openai_embedding", options),
+            });
+            builder.AddProviderType<IEmbeddingGenerator<string, Embedding<float>>>("openai_embeddings", OpenAIProviderType.CreateEmbeddings, new ProviderTypeOptions
+            {
+                Validate = options => RequireKey("openai_embeddings", options),
             });
             return builder;
         }

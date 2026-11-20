@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 namespace PinkRooster.ProviderConfig;
 
 /// <summary>Checks the configured upstream providers, so a mistake fails at startup and not at the first request.</summary>
-internal sealed class ProvidersValidator(ProviderTypeRegistry providerTypes, IServiceProvider services) : IValidateOptions<ProviderConfigOptions>
+internal sealed class ProvidersValidator(ProviderTypeRegistry providerTypes, ILoggerFactory? loggerFactory = null) : IValidateOptions<ProviderConfigOptions>
 {
     private int _warned;
 
@@ -140,6 +140,11 @@ internal sealed class ProvidersValidator(ProviderTypeRegistry providerTypes, ISe
             failures.Add($"{modelPrefix}:TopK must be greater than zero.");
         }
 
+        if (model.Dimensions is { } dimensions && dimensions <= 0)
+        {
+            failures.Add($"{modelPrefix}:Dimensions must be greater than zero.");
+        }
+
         if (model.ReasoningEffort is { } effort && !Enum.IsDefined(typeof(ReasoningEffort), effort))
         {
             failures.Add($"{modelPrefix}:ReasoningEffort value {(int)effort} is invalid.");
@@ -148,7 +153,7 @@ internal sealed class ProvidersValidator(ProviderTypeRegistry providerTypes, ISe
 
     private void WarnAboutKeysOverHttp(ProviderConfigOptions options)
     {
-        ILogger? logger = services.GetService<ILoggerFactory>()?.CreateLogger("PinkRooster.ProviderConfig");
+        ILogger? logger = loggerFactory?.CreateLogger("PinkRooster.ProviderConfig");
         if (logger is null)
         {
             return;

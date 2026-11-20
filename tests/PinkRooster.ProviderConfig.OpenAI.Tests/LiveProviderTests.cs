@@ -34,6 +34,28 @@ public sealed class LiveProviderTests
         Assert.False(raw["store"]!.GetValue<bool>());
     }
 
+    [Fact]
+    public async Task OpenAIEmbedding_GeneratesVector()
+    {
+        string? key = Environment.GetEnvironmentVariable("PROVIDERCONFIG_LIVE_OPENAI_KEY");
+        string? model = Environment.GetEnvironmentVariable("PROVIDERCONFIG_LIVE_OPENAI_EMBEDDING_MODEL")
+            ?? Environment.GetEnvironmentVariable("PROVIDERCONFIG_LIVE_OPENAI_MODEL");
+        if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(model))
+        {
+            Assert.Skip("Set PROVIDERCONFIG_LIVE_OPENAI_KEY and PROVIDERCONFIG_LIVE_OPENAI_EMBEDDING_MODEL (or PROVIDERCONFIG_LIVE_OPENAI_MODEL) to run this test.");
+        }
+
+        ServiceCollection services = new();
+        services.AddProviderConfig().AddOpenAI().Configure(o => o.Providers["live"] = new ProviderOptions { Type = "openai_embedding", ApiKey = key });
+        IEmbeddingGenerator<string, Embedding<float>> generator = services.BuildServiceProvider()
+            .GetRequiredService<IEmbeddingGeneratorFactory>().GetEmbeddingGenerator("live", model);
+
+        GeneratedEmbeddings<Embedding<float>> embeddings = await generator.GenerateAsync(["hello world"]);
+
+        Assert.Single(embeddings);
+        Assert.NotEmpty(embeddings[0].Vector.ToArray());
+    }
+
     private static (string Key, string Model) Require(string provider)
     {
         string? key = Environment.GetEnvironmentVariable($"PROVIDERCONFIG_LIVE_{provider}_KEY");

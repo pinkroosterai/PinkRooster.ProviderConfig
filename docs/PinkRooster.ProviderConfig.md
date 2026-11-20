@@ -4,7 +4,7 @@
 
 Configuration-driven provider setup for Microsoft.Extensions.AI chat clients: a provider type registry, a chat client factory and configuration validation.
 
-Status: preview (`0.1.0-preview.3`), developed against the .NET 10 SDK.
+Status: preview (`0.1.0-preview.4`), developed against the .NET 10 SDK.
 
 ```text
 dotnet add package PinkRooster.ProviderConfig --prerelease
@@ -48,7 +48,7 @@ Default generation parameters can be declared per model under `Providers:<id>:Mo
 }
 ```
 
-Supported settings are `Temperature` (0–2), `ReasoningEffort` (a defined `Microsoft.Extensions.AI.ReasoningEffort` value), `MaxOutputTokens` (positive), `TopP` (0–1), `TopK` (positive), `FrequencyPenalty` and `PresencePenalty` (−2–2), `Seed`, `StopSequences`, and `AdditionalProperties`. Invalid settings fail startup validation with the provider, model, and property path.
+Supported settings are `Temperature` (0–2), `ReasoningEffort` (a defined `Microsoft.Extensions.AI.ReasoningEffort` value), `MaxOutputTokens` (positive), `TopP` (0–1), `TopK` (positive), `FrequencyPenalty` and `PresencePenalty` (−2–2), `Dimensions` (positive), `Seed`, `StopSequences`, and `AdditionalProperties`. Invalid settings fail startup validation with the provider, model, and property path.
 
 Model IDs are case-insensitive. Every call selects defaults using `ChatOptions.ModelId` when supplied, otherwise the model ID used to create the client. Unlisted models receive no defaults. Both normal and streaming calls use this behavior; non-chat clients are unaffected.
 

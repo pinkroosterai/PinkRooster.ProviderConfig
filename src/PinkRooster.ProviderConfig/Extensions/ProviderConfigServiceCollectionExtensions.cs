@@ -23,6 +23,7 @@ public static class ProviderConfigServiceCollectionExtensions
             services.TryAddSingleton<ProviderClientFactory>();
             services.TryAddSingleton<IProviderClientFactory>(provider => provider.GetRequiredService<ProviderClientFactory>());
             services.TryAddSingleton<IChatClientFactory>(provider => provider.GetRequiredService<ProviderClientFactory>());
+            services.TryAddSingleton<IEmbeddingGeneratorFactory>(provider => provider.GetRequiredService<ProviderClientFactory>());
             return new ProviderConfigBuilder(services, types);
         }
     }

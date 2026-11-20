@@ -32,6 +32,9 @@ public sealed class ModelOptions
     /// <summary>Stop sequences that terminate generation.</summary>
     public IList<string>? StopSequences { get; set; }
 
+    /// <summary>The number of dimensions to generate in each embedding.</summary>
+    public int? Dimensions { get; set; }
+
     /// <summary>Custom or provider-specific parameters passed to the upstream provider.</summary>
     public IDictionary<string, object?> AdditionalProperties { get; set; } = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
 }

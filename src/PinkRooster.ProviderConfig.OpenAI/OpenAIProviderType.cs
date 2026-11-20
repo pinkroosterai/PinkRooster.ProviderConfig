@@ -11,8 +11,8 @@ using OpenAI.Responses;
 namespace PinkRooster.ProviderConfig.OpenAI;
 
 /// <summary>
-/// The built-in <c>openai</c> and <c>openai_responses</c> provider types: the Chat Completions API and the Responses API of OpenAI or a
-/// compatible service.
+/// The built-in <c>openai</c>, <c>openai_responses</c>, <c>openai_embedding</c>, and <c>openai_embeddings</c> provider types: the Chat
+/// Completions, Responses, and Embeddings APIs of OpenAI or a compatible service.
 /// </summary>
 internal static class OpenAIProviderType
 {
@@ -64,5 +64,20 @@ internal static class OpenAIProviderType
         ResponsesClient responses = CreateClient(context).GetResponsesClient();
         bool store = context.Options.Store ?? false;
         return model => new ResponsesChatClient(responses.AsIChatClient(model), store);
+    }
+
+    /// <summary>
+    /// Creates the client function of an <c>openai_embedding</c> or <c>openai_embeddings</c> provider: one SDK client, an embedding generator per model
+    /// that forwards configured dimensions if specified.
+    /// </summary>
+    public static Func<string, IEmbeddingGenerator<string, Embedding<float>>> CreateEmbeddings(ProviderContext context)
+    {
+        OpenAIClient client = CreateClient(context);
+        IDictionary<string, ModelOptions> models = context.Options.Models;
+        return model =>
+        {
+            int? dimensions = models.TryGetValue(model, out ModelOptions? options) ? options.Dimensions : null;
+            return client.GetEmbeddingClient(model).AsIEmbeddingGenerator(dimensions);
+        };
     }
 }

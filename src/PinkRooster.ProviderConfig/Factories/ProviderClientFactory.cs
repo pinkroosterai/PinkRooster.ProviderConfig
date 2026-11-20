@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 namespace PinkRooster.ProviderConfig;
 
 /// <summary>Creates each provider's client function once, through its registered type.</summary>
-internal sealed class ProviderClientFactory(IOptions<ProviderConfigOptions> options, ProviderTypeRegistry types, IServiceProvider services) : IProviderClientFactory, IChatClientFactory, IDisposable
+internal sealed class ProviderClientFactory(IOptions<ProviderConfigOptions> options, ProviderTypeRegistry types, IServiceProvider services) : IProviderClientFactory, IChatClientFactory, IEmbeddingGeneratorFactory, IDisposable
 {
     private readonly ConcurrentBag<IDisposable> _owned = [];
     private readonly Lock _gate = new();
@@ -24,6 +24,9 @@ internal sealed class ProviderClientFactory(IOptions<ProviderConfigOptions> opti
 
         return client;
     }
+
+    public IEmbeddingGenerator<string, Embedding<float>> GetEmbeddingGenerator(string providerId, string modelId) =>
+        GetClient<IEmbeddingGenerator<string, Embedding<float>>>(providerId, modelId);
 
     public TClient GetClient<TClient>(string providerId, string modelId) where TClient : class
     {
