@@ -2,9 +2,9 @@
 
 # PinkRooster.ProviderConfig
 
-Configuration-driven provider setup for Microsoft.Extensions.AI chat clients: a provider type registry, a chat client factory and configuration validation.
+Configuration-driven setup for `Microsoft.Extensions.AI` chat clients and text embedding generators. The core provides a type registry, client factories, and startup validation without depending on any provider SDK.
 
-Status: preview (`0.1.0-preview.4`), developed against the .NET 10 SDK.
+Status: preview (`0.1.0-preview.5`). Targets .NET 10.
 
 ```text
 dotnet add package PinkRooster.ProviderConfig --prerelease
@@ -12,12 +12,7 @@ dotnet add package PinkRooster.ProviderConfig --prerelease
 
 ## Quickstart
 
-```csharp
-using PinkRooster.ProviderConfig;
-
-services.AddProviderConfig()
-    .AddChatClient("openai", "gpt-5-mini");
-```
+Install and register an adapter alongside the core to use a built-in provider type. Start with the [runnable OpenAI quickstart](https://github.com/pinkroosterai/PinkRooster.ProviderConfig#quickstart), or see the [adapter list](https://github.com/pinkroosterai/PinkRooster.ProviderConfig#packages). To register your own provider instead, use [`AddProviderType<TClient>`](https://github.com/pinkroosterai/PinkRooster.ProviderConfig#custom-provider-types).
 
 ## Model Defaults Configuration
 
@@ -28,19 +23,10 @@ Default generation parameters can be declared per model under `Providers:<id>:Mo
   "Providers": {
     "openai": {
       "Type": "openai",
-      "ApiKey": "sk-...",
       "Models": {
-        "gpt-5": {
+        "gpt-4.1-mini": {
           "Temperature": 0.2,
-          "ReasoningEffort": "High",
-          "MaxOutputTokens": 4096,
-          "AdditionalProperties": {
-            "custom_budget_tokens": 2048
-          }
-        },
-        "gpt-5-mini": {
-          "Temperature": 0.7,
-          "ReasoningEffort": "Low"
+          "MaxOutputTokens": 4096
         }
       }
     }
@@ -48,15 +34,21 @@ Default generation parameters can be declared per model under `Providers:<id>:Mo
 }
 ```
 
-Supported settings are `Temperature` (0–2), `ReasoningEffort` (a defined `Microsoft.Extensions.AI.ReasoningEffort` value), `MaxOutputTokens` (positive), `TopP` (0–1), `TopK` (positive), `FrequencyPenalty` and `PresencePenalty` (−2–2), `Dimensions` (positive), `Seed`, `StopSequences`, and `AdditionalProperties`. Invalid settings fail startup validation with the provider, model, and property path.
+Supply `Providers:openai:ApiKey` separately through .NET configuration, for example using the `Providers__openai__ApiKey` environment variable.
 
-Model IDs are case-insensitive. Every call selects defaults using `ChatOptions.ModelId` when supplied, otherwise the model ID used to create the client. Unlisted models receive no defaults. Both normal and streaming calls use this behavior; non-chat clients are unaffected.
+Supported settings are `Temperature` (0–2), `ReasoningEffort` (a defined `Microsoft.Extensions.AI.ReasoningEffort` value), `MaxOutputTokens` (positive), `TopP` (0–1), `TopK` (positive), `FrequencyPenalty` and `PresencePenalty` (−2–2), `Seed`, `StopSequences`, and `AdditionalProperties`. Invalid settings fail startup validation with the provider, model, and property path.
+
+Model IDs are case-insensitive. Every call selects defaults using `ChatOptions.ModelId` when supplied, otherwise the model ID used to create the client. Unlisted models receive no defaults. Both normal and streaming chat calls use this behavior.
 
 When an `IChatClient` is resolved via `IChatClientFactory` or `AddChatClient`, it automatically uses these configured defaults. Any option supplied by the caller at invocation time overrides the configured default, including zero temperature. Caller options are cloned before defaults are merged. `AdditionalProperties` are merged by key, with caller keys taking precedence.
 
 An explicit empty `StopSequences` list disables configured stop sequences. Only a null list receives defaults. Floating-point generation settings must be finite and within their documented ranges.
 
 Configuration stores scalar values as strings. For model `AdditionalProperties`, boolean values are converted to `bool`, integers to `long`, and other finite numbers to `double`, using invariant culture. Other values remain strings, and null values remain null. This conversion also applies to quoted numeric or boolean strings. To pass a literal string such as `"2048"` or `"true"`, set that property through the builder's `Configure` callback, which runs after configuration binding.
+
+### Embedding dimensions
+
+For OpenAI embedding providers, set `Providers:<id>:Models:<modelId>:Dimensions` to request a specific vector length. The value must be a positive integer; the upstream model must support it. This setting is separate from the chat defaults above. See the [embeddings walkthrough](https://github.com/pinkroosterai/PinkRooster.ProviderConfig#generate-embeddings).
 
 ## Compatibility
 

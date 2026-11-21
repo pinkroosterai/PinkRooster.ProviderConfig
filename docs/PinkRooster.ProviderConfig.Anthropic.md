@@ -4,7 +4,7 @@
 
 The anthropic provider type for PinkRooster.ProviderConfig: the Messages API of Anthropic or a compatible service.
 
-Status: preview (`0.1.0-preview.4`), developed against the .NET 10 SDK.
+Status: preview (`0.1.0-preview.5`). Targets .NET 10.
 
 ```text
 dotnet add package PinkRooster.ProviderConfig.Anthropic --prerelease
@@ -20,6 +20,8 @@ services.AddProviderConfig()
     .AddAnthropic()
     .AddChatClient("claude", "claude-sonnet-4-5");
 ```
+
+Configure `Providers:claude:Type` as `anthropic` and supply `Providers:claude:ApiKey` through .NET configuration (for example, via `Providers__claude__ApiKey`). See the [configuration reference](https://github.com/pinkroosterai/PinkRooster.ProviderConfig#configuration).
 
 ## Compatibility
 

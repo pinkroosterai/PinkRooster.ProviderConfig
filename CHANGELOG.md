@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.0-preview.5] - 2026-11-21
+
+### Changed
+
+- Reworked the repository README around a runnable chat quickstart and an embeddings walkthrough, with guidance on configuration, credentials, and troubleshooting.
+- Aligned the NuGet package documentation with the quickstart and clarified how per-model embedding dimensions differ from chat defaults. No runtime changes.
+
 ## [0.1.0-preview.4] - 2026-11-20
 
 ### Added
