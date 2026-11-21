@@ -19,6 +19,12 @@ public sealed class ProviderOptions
     /// </summary>
     public TimeSpan? Timeout { get; set; }
 
+    /// <summary>
+    /// Maximum additional SDK attempts after the initial request. Zero disables SDK retries; null leaves the SDK policy unchanged.
+    /// Must be nonnegative and is only valid for provider types that support it.
+    /// </summary>
+    public int? MaxRetries { get; set; }
+
     /// <summary>Whether the upstream stores responses. Applies to <c>openai_responses</c> only; defaults to false.</summary>
     public bool? Store { get; set; }
 

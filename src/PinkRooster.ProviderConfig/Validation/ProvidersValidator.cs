@@ -71,6 +71,19 @@ internal sealed class ProvidersValidator(ProviderTypeRegistry providerTypes, ILo
             failures.Add($"{prefix}:Timeout must be greater than zero.");
         }
 
+        if (provider.MaxRetries is { } maxRetries)
+        {
+            if (maxRetries < 0)
+            {
+                failures.Add($"{prefix}:MaxRetries must be greater than or equal to zero.");
+            }
+
+            if (registration?.Options.SupportsMaxRetries != true)
+            {
+                failures.Add($"{prefix}:MaxRetries is not supported by type '{type}'.");
+            }
+        }
+
         if (provider.Store is not null && registration?.Options.UsesStore != true)
         {
             string[] storeTypes = [.. providerTypes.Types.Where(storeType => providerTypes.TryGet(storeType, out ProviderTypeRegistration? other) && other.Options.UsesStore)];

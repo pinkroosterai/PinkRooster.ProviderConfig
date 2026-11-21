@@ -20,7 +20,7 @@ internal static class OpenAIProviderType
     private const string PlaceholderKey = "providerconfig-no-key";
 
     /// <summary>Creates the SDK client for a provider. The endpoint is always set, so no <c>OPENAI_*</c> environment variable can redirect it.</summary>
-    public static OpenAIClient CreateClient(ProviderContext context)
+    private static OpenAIClient CreateClient(ProviderContext context, int? maxRetries = null)
     {
         ProviderOptions options = context.Options;
         UriBuilder endpoint = new(options.Endpoint ?? new Uri(DefaultEndpoint));
@@ -33,6 +33,11 @@ internal static class OpenAIProviderType
         if (options.Timeout is { } timeout)
         {
             clientOptions.NetworkTimeout = timeout;
+        }
+
+        if (maxRetries is { } retries)
+        {
+            clientOptions.RetryPolicy = new ClientRetryPolicy(retries);
         }
 
         ProviderHttpHandler? seam = context.Services.GetService<ProviderHttpHandler>();
@@ -72,7 +77,7 @@ internal static class OpenAIProviderType
     /// </summary>
     public static Func<string, IEmbeddingGenerator<string, Embedding<float>>> CreateEmbeddings(ProviderContext context)
     {
-        OpenAIClient client = CreateClient(context);
+        OpenAIClient client = CreateClient(context, context.Options.MaxRetries);
         IDictionary<string, ModelOptions> models = context.Options.Models;
         return model =>
         {

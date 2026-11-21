@@ -33,10 +33,19 @@ internal sealed class StubUpstream : HttpMessageHandler
     }));
 
     /// <summary>Queues an answer with the given status and a JSON body.</summary>
-    public StubUpstream RespondStatus(HttpStatusCode status, string json = "{}") => Enqueue((_, _) => Task.FromResult(new HttpResponseMessage(status)
+    public StubUpstream RespondStatus(HttpStatusCode status, string json = "{}", TimeSpan? retryAfter = null) => Enqueue((_, _) =>
     {
-        Content = new StringContent(json, Encoding.UTF8, "application/json"),
-    }));
+        HttpResponseMessage response = new(status)
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json"),
+        };
+        if (retryAfter is { } delay)
+        {
+            response.Headers.RetryAfter = new(delay);
+        }
+
+        return Task.FromResult(response);
+    });
 
     /// <summary>Queues a server-sent events answer, one <c>data:</c> line per argument.</summary>
     public StubUpstream RespondSse(params string[] dataLines) => Enqueue((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)

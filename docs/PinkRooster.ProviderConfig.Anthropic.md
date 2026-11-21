@@ -4,7 +4,7 @@
 
 The anthropic provider type for PinkRooster.ProviderConfig: the Messages API of Anthropic or a compatible service.
 
-Status: preview (`0.1.0-preview.5`). Targets .NET 10.
+Status: preview (`0.1.0-preview.6`). Targets .NET 10.
 
 ```text
 dotnet add package PinkRooster.ProviderConfig.Anthropic --prerelease

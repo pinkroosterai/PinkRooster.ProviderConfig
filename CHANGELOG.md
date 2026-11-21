@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.0-preview.6] - 2026-11-21
+
+### Added
+
+- Per-provider `MaxRetries` for `openai_embedding` and `openai_embeddings`. Set it to `0` to disable SDK retries, leave it unset to keep SDK defaults, or set a positive count to cap additional attempts. Startup rejects malformed or negative values and explicit values on types that do not support the option. Chat retry behavior is unchanged.
+
 ## [0.1.0-preview.5] - 2026-11-21
 
 ### Changed

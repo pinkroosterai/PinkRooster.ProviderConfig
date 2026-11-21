@@ -53,6 +53,7 @@ public sealed class ProvidersValidatorTests
         { "p", new ProviderOptions { Type = "fake", ApiKey = Sentinel, Timeout = TimeSpan.FromSeconds(-1) }, "Providers:p:Timeout must be greater than zero." },
         { "p", new ProviderOptions { Type = "needs_key", ApiKey = " " }, "Providers:p:ApiKey is required for type 'needs_key'." },
         { "p", new ProviderOptions { Type = "fake", ApiKey = Sentinel, Store = true }, "Providers:p:Store applies only to type 'needs_key'." },
+        { "p", new ProviderOptions { Type = "fake", MaxRetries = 0 }, "Providers:p:MaxRetries is not supported by type 'fake'." },
         { "p", null, "Providers:p is empty." },
     };
 
@@ -142,6 +143,37 @@ public sealed class ProvidersValidatorTests
     public void Start_Succeeds_WithNoProviders()
     {
         Assert.Empty(Resolve(_ => { }).Providers);
+    }
+
+    [Theory]
+    [InlineData(-1, true, "Providers:indexing:MaxRetries must be greater than or equal to zero.")]
+    [InlineData(0, false, "Providers:indexing:MaxRetries is not supported by type 'retry'.")]
+    public async Task Start_RejectsInvalidProgrammaticMaxRetries(int maxRetries, bool supportsMaxRetries, string expected)
+    {
+        HostApplicationBuilder builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings());
+        AddRetryType(builder.Services, maxRetries, supportsMaxRetries);
+        using IHost host = builder.Build();
+
+        OptionsValidationException error = await Assert.ThrowsAsync<OptionsValidationException>(() => host.StartAsync());
+
+        Assert.Contains(expected, error.Failures);
+    }
+
+    [Fact]
+    public void Options_AcceptProgrammaticZeroOnAnOptedInType()
+    {
+        ServiceCollection services = new();
+        AddRetryType(services, 0, supportsMaxRetries: true);
+        using ServiceProvider provider = services.BuildServiceProvider();
+
+        Assert.Equal(0, provider.GetRequiredService<IOptions<ProviderConfigOptions>>().Value.Providers["indexing"].MaxRetries);
+    }
+
+    private static void AddRetryType(IServiceCollection services, int maxRetries, bool supportsMaxRetries)
+    {
+        services.AddProviderConfig()
+            .AddProviderType<IChatClient>("retry", _ => id => new FakeChatClient("retry", id), new ProviderTypeOptions { SupportsMaxRetries = supportsMaxRetries })
+            .Configure(options => options.Providers["indexing"] = new ProviderOptions { Type = "retry", MaxRetries = maxRetries });
     }
 
     [Fact]
