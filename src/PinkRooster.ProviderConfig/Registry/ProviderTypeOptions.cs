@@ -11,4 +11,7 @@ public sealed class ProviderTypeOptions
 
     /// <summary>Whether the type honours <see cref="ProviderOptions.Store"/>. The validator rejects <c>Store</c> on other types.</summary>
     public bool UsesStore { get; init; }
+
+    /// <summary>Whether the type honours <see cref="ProviderOptions.MaxRetries"/>. Defaults to false.</summary>
+    public bool SupportsMaxRetries { get; init; }
 }

@@ -4,7 +4,7 @@
 
 Configuration-driven setup for `Microsoft.Extensions.AI` chat clients and text embedding generators. The core provides a type registry, client factories, and startup validation without depending on any provider SDK.
 
-Status: preview (`0.1.0-preview.5`). Targets .NET 10.
+Status: preview (`0.1.0-preview.6`). Targets .NET 10.
 
 ```text
 dotnet add package PinkRooster.ProviderConfig --prerelease
@@ -13,6 +13,12 @@ dotnet add package PinkRooster.ProviderConfig --prerelease
 ## Quickstart
 
 Install and register an adapter alongside the core to use a built-in provider type. Start with the [runnable OpenAI quickstart](https://github.com/pinkroosterai/PinkRooster.ProviderConfig#quickstart), or see the [adapter list](https://github.com/pinkroosterai/PinkRooster.ProviderConfig#packages). To register your own provider instead, use [`AddProviderType<TClient>`](https://github.com/pinkroosterai/PinkRooster.ProviderConfig#custom-provider-types).
+
+## SDK retry limits
+
+`Providers:<id>:MaxRetries` (or `ProviderOptions.MaxRetries` in code) caps additional SDK attempts per request, not total attempts. Omit it or set it to null to leave the SDK policy unchanged. Set it to `0` to disable SDK retries, or a positive integer to cap retries on failures the SDK considers retryable.
+
+Among built-in types, only `openai_embedding` and `openai_embeddings` support it. An explicit value on any type that has not opted in, or a negative or malformed value, fails startup validation.
 
 ## Model Defaults Configuration
 

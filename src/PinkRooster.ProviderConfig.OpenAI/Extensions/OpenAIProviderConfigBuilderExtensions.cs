@@ -27,10 +27,12 @@ public static class OpenAIProviderConfigBuilderExtensions
             builder.AddProviderType<IEmbeddingGenerator<string, Embedding<float>>>("openai_embedding", OpenAIProviderType.CreateEmbeddings, new ProviderTypeOptions
             {
                 Validate = options => RequireKey("openai_embedding", options),
+                SupportsMaxRetries = true,
             });
             builder.AddProviderType<IEmbeddingGenerator<string, Embedding<float>>>("openai_embeddings", OpenAIProviderType.CreateEmbeddings, new ProviderTypeOptions
             {
                 Validate = options => RequireKey("openai_embeddings", options),
+                SupportsMaxRetries = true,
             });
             return builder;
         }

@@ -4,7 +4,7 @@
 
 The jev provider type for PinkRooster.ProviderConfig: the Jev System One API of TypeSafe, through Jev.Net.
 
-Status: preview (`0.1.0-preview.5`). Targets .NET 10.
+Status: preview (`0.1.0-preview.6`). Targets .NET 10.
 
 ```text
 dotnet add package PinkRooster.ProviderConfig.Jev --prerelease

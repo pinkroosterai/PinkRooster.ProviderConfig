@@ -11,7 +11,11 @@ internal sealed class ConfigurationBinding(IServiceProvider services) : IConfigu
     public void Configure(ProviderConfigOptions options)
     {
         IConfiguration? configuration = services.GetService<IConfiguration>();
-        configuration?.GetSection(ProviderConfigOptions.SectionName).Bind(options.Providers);
+        if (configuration?.GetSection(ProviderConfigOptions.SectionName) is { } providers)
+        {
+            ValidateRetryConfiguration(providers);
+            providers.Bind(options.Providers);
+        }
 
         foreach (ProviderOptions provider in options.Providers.Values)
         {
@@ -31,6 +35,26 @@ internal sealed class ConfigurationBinding(IServiceProvider services) : IConfigu
                     }
                 }
             }
+        }
+    }
+
+    private static void ValidateRetryConfiguration(IConfigurationSection providers)
+    {
+        List<string> failures = [];
+        foreach (IConfigurationSection provider in providers.GetChildren())
+        {
+            // Dictionary binding can drop malformed entries and treat an empty string as null.
+            IConfigurationSection retries = provider.GetSection(nameof(ProviderOptions.MaxRetries));
+            if (retries.GetChildren().Any()
+                || (retries.Value is { } value && !int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _)))
+            {
+                failures.Add($"{retries.Path} must be an integer or null.");
+            }
+        }
+
+        if (failures.Count > 0)
+        {
+            throw new OptionsValidationException(Microsoft.Extensions.Options.Options.DefaultName, typeof(ProviderConfigOptions), failures);
         }
     }
 

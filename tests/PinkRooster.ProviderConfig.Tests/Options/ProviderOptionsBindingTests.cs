@@ -1,6 +1,8 @@
+using System.Text;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using PinkRooster.ProviderConfig.Tests.TestSupport;
 
@@ -11,6 +13,13 @@ public sealed class ProviderOptionsBindingTests
     // These tests are about binding; the types they name are registered so the startup validation accepts them.
     private static ProviderConfigOptions Resolve(IServiceCollection services)
     {
+        RegisterTypes(services);
+        using ServiceProvider provider = services.BuildServiceProvider();
+        return provider.GetRequiredService<IOptions<ProviderConfigOptions>>().Value;
+    }
+
+    private static ProviderConfigBuilder RegisterTypes(IServiceCollection services)
+    {
         ProviderConfigBuilder builder = services.AddProviderConfig();
         foreach (string type in new[] { "t", "a", "b" })
         {
@@ -18,8 +27,7 @@ public sealed class ProviderOptionsBindingTests
         }
 
         builder.AddProviderType<IChatClient>("openai_responses", _ => id => new FakeChatClient("openai_responses", id), new ProviderTypeOptions { UsesStore = true });
-        using ServiceProvider provider = services.BuildServiceProvider();
-        return provider.GetRequiredService<IOptions<ProviderConfigOptions>>().Value;
+        return builder.AddProviderType<IChatClient>("retry", _ => id => new FakeChatClient("retry", id), new ProviderTypeOptions { SupportsMaxRetries = true });
     }
 
     private static ProviderConfigOptions Bind(params Dictionary<string, string?>[] sources)
@@ -101,6 +109,77 @@ public sealed class ProviderOptionsBindingTests
         services.AddProviderConfig().Configure(o => o.Providers["p"] = new ProviderOptions { Type = "b" });
 
         Assert.Equal("b", Resolve(services).Providers["p"].Type);
+    }
+
+    [Theory]
+    [InlineData("", null)]
+    [InlineData(", \"MaxRetries\": null", null)]
+    [InlineData(", \"MaxRetries\": {}", null)]
+    [InlineData(", \"MaxRetries\": 0", 0)]
+    [InlineData(", \"MaxRetries\": 3", 3)]
+    public async Task MaxRetries_BindsAtStartup(string setting, int? expected)
+    {
+        HostApplicationBuilder builder = HostWithRetryConfig(setting);
+        using IHost host = builder.Build();
+
+        await host.StartAsync();
+
+        Assert.Equal(expected, host.Services.GetRequiredService<IOptions<ProviderConfigOptions>>().Value.Providers["indexing"].MaxRetries);
+    }
+
+    [Theory]
+    [InlineData("-1")]
+    [InlineData("\"\"")]
+    [InlineData("\"  \"")]
+    [InlineData("\"typo\"")]
+    [InlineData("1.5")]
+    [InlineData("2147483648")]
+    [InlineData("[]")]
+    [InlineData("[0]")]
+    [InlineData("{ \"value\": 0 }")]
+    public async Task InvalidMaxRetries_FailsAtStartup(string value)
+    {
+        HostApplicationBuilder builder = HostWithRetryConfig($", \"MaxRetries\": {value}");
+        using IHost host = builder.Build();
+
+        OptionsValidationException error = await Assert.ThrowsAsync<OptionsValidationException>(() => host.StartAsync());
+
+        Assert.Contains("Providers:indexing:MaxRetries", error.Message);
+    }
+
+    [Fact]
+    public void ValidConfiguredMaxRetries_CanBeOverriddenInCode()
+    {
+        HostApplicationBuilder builder = HostWithRetryConfig(", \"MaxRetries\": 3");
+        builder.Services.AddProviderConfig().Configure(options => options.Providers["indexing"].MaxRetries = 0);
+        using IHost host = builder.Build();
+
+        Assert.Equal(0, host.Services.GetRequiredService<IOptions<ProviderConfigOptions>>().Value.Providers["indexing"].MaxRetries);
+    }
+
+    [Fact]
+    public void MalformedMaxRetries_FailsOptionsResolution_EvenWithCodeOverride()
+    {
+        ServiceCollection services = new();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["Providers:indexing:Type"] = "retry",
+            ["Providers:indexing:MaxRetries"] = "typo",
+        }).Build());
+        services.AddProviderConfig().Configure(options => options.Providers["indexing"].MaxRetries = 0);
+
+        OptionsValidationException error = Assert.Throws<OptionsValidationException>(() => Resolve(services));
+
+        Assert.Contains("Providers:indexing:MaxRetries", error.Message);
+    }
+
+    private static HostApplicationBuilder HostWithRetryConfig(string setting)
+    {
+        HostApplicationBuilder builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings());
+        using var json = new MemoryStream(Encoding.UTF8.GetBytes($$$$"""{"Providers":{"indexing":{"Type":"retry"{{{{setting}}}}}}}"""));
+        builder.Configuration.AddJsonStream(json);
+        RegisterTypes(builder.Services);
+        return builder;
     }
 
     [Fact]
